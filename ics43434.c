@@ -16,6 +16,7 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/slab.h>
+#include <linux/of_platform.h>
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/pcm_params.h>
@@ -23,8 +24,8 @@
 #include <sound/initval.h>
 #include <sound/tlv.h>
 
-#define ICS43434_RATE_MIN 6250 /* Hz, from data sheet */
-#define ICS43434_RATE_MAX 18750  /* Hz, from data sheet */
+#define ICS43434_RATE_MIN 6250 /* Hz, from data sheet, low power mode */
+#define ICS43434_RATE_MAX 51600  /* Hz, from data sheet, low power mode */
 
 #define ICS43434_FORMATS (SNDRV_PCM_FMTBIT_S24_LE | SNDRV_PCM_FMTBIT_S32)
 
@@ -50,18 +51,31 @@ static const struct snd_soc_component_driver ics43434_component_driver = {
 
 static int ics43434_probe(struct platform_device *pdev)
 {
+	/*
+	struct device_node *cpu_np, *np = pdev->dev.of_node;
+	struct platform_device *cpu_pdev;
+	cpu_np = of_parse_phandle(np, "cpu-dai", 0);
+	 if (!cpu_np) {
+        dev_err(&pdev->dev, "cpu dai phandle missing or invalid\n");
+        return -EINVAL;
+    }
+    cpu_pdev = of_find_device_by_node(cpu_np);
+    if (!cpu_pdev) {
+        dev_err(&pdev->dev, "failed to find SAI platform device\n");
+		return -EINVAL;
+	}
+	*/
+    printk(KERN_INFO "ics43434 probe successful\n");
 	return devm_snd_soc_register_component(&pdev->dev,
 			&ics43434_component_driver,
 			&ics43434_dai, 1);
 }
 
-#ifdef CONFIG_OF
 static const struct of_device_id ics43434_ids[] = {
 	{ .compatible = "invensense,ics43434", },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, ics43434_ids);
-#endif
 
 static struct platform_driver ics43434_driver = {
 	.driver = {
