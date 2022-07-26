@@ -1,0 +1,16 @@
+pcm.mic_hw{
+type hw
+card soundcard
+format S32_LE
+}
+
+pcm.mic_sv{
+type softvol
+slave.pcm mic_hw
+control {
+name "Boost Capture Volume"
+card soundcard
+}
+min_dB -1.0
+max_dB 50.0
+}
